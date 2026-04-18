@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Relatório de Postes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 24px;
+      color: #222;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .summary {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px 20px;
+    }
+
+    .stat span {
+      font-size: 12px;
+      color: #888;
+      display: block;
+    }
+
+    .stat strong {
+      font-size: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card-img img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .no-img {
+      width: 100%;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .card-body {
+      padding: 8px 10px;
+    }
+
+    .card-id {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .coord {
+      font-size: 11px;
+      color: #666;
+      font-family: monospace;
+    }
+
+    a {
+      font-size: 11px;
+      color: #1a73e8;
+      text-decoration: none;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .filename {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 2px;
+      font-family: monospace;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .badge.ok {
+      background: #e6f4ea;
+      color: #1e7e34;
+    }
+
+    .badge.skip {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge.err {
+      background: #fce8e6;
+      color: #c62828;
+    }
+
+    input[type=text] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 200px;
+      margin-bottom: 16px;
+    }
+
+    .card-img img {
+      cursor: zoom-in;
+      transition: transform 0.2s;
+    }
+
+    .card:hover .card-img img {
+      transform: scale(1.05);
+    }
+
+    /* overlay */
+    .preview-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-overlay.active {
+      display: flex;
+    }
+
+    .preview-box {
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .preview-box img {
+      width: 100%;
+      display: block;
+      max-height: 480px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Relatório de Postes — Street View</h1>
+  <div class="summary">
+    <div class="stat"><span>Total</span><strong>240</strong></div>
+    <div class="stat"><span>Baixados</span><strong style="color:#1e7e34">225</strong></div>
+    <div class="stat"><span>Sem cobertura</span><strong style="color:#856404">15</strong></div>
+    <div class="stat"><span>Erros</span><strong style="color:#c62828">0</strong></div>
+  </div>
+  <span style="font-size:12px; color:#555;">ID não correlaciona a com a planilha, o id #005 é E18 da planilha</span>
+  <input type="text" id="search" placeholder="Buscar por #id ou coordenada..." oninput="filter(this.value)" />
+  <!-- <div class="preview-overlay" id="overlay">
+  <div class="preview-box">
+    <img id="previewImg" src="" alt="preview" />
+  </div>
+</div> -->
+  <div class="preview-overlay" id="overlay">
+    <div class="preview-box">
+      <img id="previewImg" src="" alt="preview" />
+      <p style="text-align:center; padding: 8px; font-size:12px; color:#aaa; background:#111;">
+        clique para copiar
+      </p>
+    </div>
+  </div>
+  <div class="grid" id="grid">
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_002.jpg" alt="poste 2" /></div>
+      <div class="card-body">
+        <p class="card-id">#002 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.909240</p>
+        <p class="coord">-54.528330</p>
+        <a href="https://www.google.com/maps?q=-22.90924,-54.52833" target="_blank">ver no Maps</a>
+        <p class="filename">poste_002.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#003 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.707200</p>
+        <p class="coord">-54.268680</p>
+        <a href="https://www.google.com/maps?q=-23.7072,-54.26868" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_004.jpg" alt="poste 4" /></div>
+      <div class="card-body">
+        <p class="card-id">#004 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.619806</p>
+        <p class="coord">-54.816500</p>
+        <a href="https://www.google.com/maps?q=-22.6198055556,-54.8165" target="_blank">ver no Maps</a>
+        <p class="filename">poste_004.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_005.jpg" alt="poste 5" /></div>
+      <div class="card-body">
+        <p class="card-id">#005 E18 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.868472</p>
+        <p class="coord">-54.604306</p>
+        <a href="https://www.google.com/maps?q=-22.8684722222,-54.6043055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_005.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#006 E19 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-24.030870</p>
+        <p class="coord">-54.286880</p>
+        <a href="https://www.google.com/maps?q=-24.03087,-54.28688" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_007.jpg" alt="poste 7" /></div>
+      <div class="card-body">
+        <p class="card-id">#007 E20 <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005032</p>
+        <p class="coord">-54.313507</p>
+        <a href="https://www.google.com/maps?q=-24.005032,-54.313507" target="_blank">ver no Maps</a>
+        <p class="filename">poste_007.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_008.jpg" alt="poste 8" /></div>
+      <div class="card-body">
+        <p class="card-id">#008 E21 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.158750</p>
+        <p class="coord">-54.198528</p>
+        <a href="https://www.google.com/maps?q=-23.15875,-54.1985277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_008.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#009 E22 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.480694</p>
+        <p class="coord">-54.186583</p>
+        <a href="https://www.google.com/maps?q=-23.4806944444,-54.1865833333" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_010.jpg" alt="poste 10" /></div>
+      <div class="card-body">
+        <p class="card-id">#010 E23 <span class="badge ok">OK</span></p>
+        <p class="coord">-24.006141</p>
+        <p class="coord">-54.312234</p>
+        <a href="https://www.google.com/maps?q=-24.006141,-54.312234" target="_blank">ver no Maps</a>
+        <p class="filename">poste_010.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#011 E24 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.215806</p>
+        <p class="coord">-54.213417</p>
+        <a href="https://www.google.com/maps?q=-23.2158055556,-54.2134166667" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#012 E25 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.763139</p>
+        <p class="coord">-54.274278</p>
+        <a href="https://www.google.com/maps?q=-23.7631388889,-54.2742777778" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_013.jpg" alt="poste 13" /></div>
+      <div class="card-body">
+        <p class="card-id">#013 E26 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.794361</p>
+        <p class="coord">-54.286250</p>
+        <a href="https://www.google.com/maps?q=-23.7943611111,-54.28625" target="_blank">ver no Maps</a>
+        <p class="filename">poste_013.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#014 E27 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-22.630306</p>
+        <p class="coord">-54.818972</p>
+        <a href="https://www.google.com/maps?q=-22.6303055556,-54.8189722222" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_015.jpg" alt="poste 15" /></div>
+      <div class="card-body">
+        <p class="card-id">#015 E28 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.864889</p>
+        <p class="coord">-54.613444</p>
+        <a href="https://www.google.com/maps?q=-22.8648888889,-54.6134444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_015.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_016.jpg" alt="poste 16" /></div>
+      <div class="card-body">
+        <p class="card-id">#016 E29 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.938667</p>
+        <p class="coord">-54.280917</p>
+        <a href="https://www.google.com/maps?q=-23.9386666667,-54.2809166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_016.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_017.jpg" alt="poste 17" /></div>
+      <div class="card-body">
+        <p class="card-id">#017 E30 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.937139</p>
+        <p class="coord">-54.281111</p>
+        <a href="https://www.google.com/maps?q=-23.9371388889,-54.2811111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_017.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_018.jpg" alt="poste 18" /></div>
+      <div class="card-body">
+        <p class="card-id">#018 E31 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.483833</p>
+        <p class="coord">-54.185778</p>
+        <a href="https://www.google.com/maps?q=-23.4838333333,-54.1857777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_018.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_019.jpg" alt="poste 19" /></div>
+      <div class="card-body">
+        <p class="card-id">#019 E32 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.798722</p>
+        <p class="coord">-54.291500</p>
+        <a href="https://www.google.com/maps?q=-23.7987222222,-54.2915" target="_blank">ver no Maps</a>
+        <p class="filename">poste_019.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_020.jpg" alt="poste 20" /></div>
+      <div class="card-body">
+        <p class="card-id">#020 E33 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.521560</p>
+        <p class="coord">-54.191710</p>
+        <a href="https://www.google.com/maps?q=-23.52156,-54.19171" target="_blank">ver no Maps</a>
+        <p class="filename">poste_020.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_021.jpg" alt="poste 21" /></div>
+      <div class="card-body">
+        <p class="card-id">#021 E34 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.866556</p>
+        <p class="coord">-54.608944</p>
+        <a href="https://www.google.com/maps?q=-22.8665555556,-54.6089444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_021.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_022.jpg" alt="poste 22" /></div>
+      <div class="card-body">
+        <p class="card-id">#022 E35 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.737830</p>
+        <p class="coord">-54.273790</p>
+        <a href="https://www.google.com/maps?q=-23.73783,-54.27379" target="_blank">ver no Maps</a>
+        <p class="filename">poste_022.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#023 E36 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.706250</p>
+        <p class="coord">-54.268583</p>
+        <a href="https://www.google.com/maps?q=-23.70625,-54.2685833333" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_024.jpg" alt="poste 24" /></div>
+      <div class="card-body">
+        <p class="card-id">#024 E37<span class="badge ok">OK</span></p>
+        <p class="coord">-23.203480</p>
+        <p class="coord">-54.203810</p>
+        <a href="https://www.google.com/maps?q=-23.20348,-54.20381" target="_blank">ver no Maps</a>
+        <p class="filename">poste_024.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_025.jpg" alt="poste 25" /></div>
+      <div class="card-body">
+        <p class="card-id">#025 E38 <span class="badge ok">OK</span></p>
+        <p class="coord">-24.029333</p>
+        <p class="coord">-54.287639</p>
+        <a href="https://www.google.com/maps?q=-24.0293333333,-54.2876388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_025.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_026.jpg" alt="poste 26" /></div>
+      <div class="card-body">
+        <p class="card-id">#026 E39 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.211250</p>
+        <p class="coord">-54.209890</p>
+        <a href="https://www.google.com/maps?q=-23.21125,-54.20989" target="_blank">ver no Maps</a>
+        <p class="filename">poste_026.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_027.jpg" alt="poste 27" /></div>
+      <div class="card-body">
+        <p class="card-id">#027 E40 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.796861</p>
+        <p class="coord">-54.289278</p>
+        <a href="https://www.google.com/maps?q=-23.7968611111,-54.2892777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_027.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_028.jpg" alt="poste 28" /></div>
+      <div class="card-body">
+        <p class="card-id">#028 E41 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867583</p>
+        <p class="coord">-54.606972</p>
+        <a href="https://www.google.com/maps?q=-22.8675833333,-54.6069722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_028.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_029.jpg" alt="poste 29" /></div>
+      <div class="card-body">
+        <p class="card-id">#029 E42 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867806</p>
+        <p class="coord">-54.606083</p>
+        <a href="https://www.google.com/maps?q=-22.8678055556,-54.6060833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_029.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#030 E43 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.686720</p>
+        <p class="coord">-54.265610</p>
+        <a href="https://www.google.com/maps?q=-23.68672,-54.26561" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_031.jpg" alt="poste 31" /></div>
+      <div class="card-body">
+        <p class="card-id">#031 E44 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.787083</p>
+        <p class="coord">-54.278500</p>
+        <a href="https://www.google.com/maps?q=-23.7870833333,-54.2785" target="_blank">ver no Maps</a>
+        <p class="filename">poste_031.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_032.jpg" alt="poste 32" /></div>
+      <div class="card-body">
+        <p class="card-id">#032 E45 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.629750</p>
+        <p class="coord">-54.819139</p>
+        <a href="https://www.google.com/maps?q=-22.62975,-54.8191388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_032.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_033.jpg" alt="poste 33" /></div>
+      <div class="card-body">
+        <p class="card-id">#033 E46 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.925778</p>
+        <p class="coord">-54.282944</p>
+        <a href="https://www.google.com/maps?q=-23.9257777778,-54.2829444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_033.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_034.jpg" alt="poste 34" /></div>
+      <div class="card-body">
+        <p class="card-id">#034 E47 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.101833</p>
+        <p class="coord">-54.223139</p>
+        <a href="https://www.google.com/maps?q=-23.1018333333,-54.2231388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_034.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_035.jpg" alt="poste 35" /></div>
+      <div class="card-body">
+        <p class="card-id">#035 E48 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.796389</p>
+        <p class="coord">-54.288694</p>
+        <a href="https://www.google.com/maps?q=-23.7963888889,-54.2886944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_035.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_036.jpg" alt="poste 36" /></div>
+      <div class="card-body">
+        <p class="card-id">#036 E49 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.624278</p>
+        <p class="coord">-54.817389</p>
+        <a href="https://www.google.com/maps?q=-22.6242777778,-54.8173888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_036.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_037.jpg" alt="poste 37" /></div>
+      <div class="card-body">
+        <p class="card-id">#037 E50 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.351860</p>
+        <p class="coord">-54.215450</p>
+        <a href="https://www.google.com/maps?q=-23.35186,-54.21545" target="_blank">ver no Maps</a>
+        <p class="filename">poste_037.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_038.jpg" alt="poste 38" /></div>
+      <div class="card-body">
+        <p class="card-id">#038 E51 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.928889</p>
+        <p class="coord">-54.282111</p>
+        <a href="https://www.google.com/maps?q=-23.9288888889,-54.2821111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_038.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_039.jpg" alt="poste 39" /></div>
+      <div class="card-body">
+        <p class="card-id">#039 E52 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.632889</p>
+        <p class="coord">-54.819000</p>
+        <a href="https://www.google.com/maps?q=-22.6328888889,-54.819" target="_blank">ver no Maps</a>
+        <p class="filename">poste_039.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_040.jpg" alt="poste 40" /></div>
+      <div class="card-body">
+        <p class="card-id">#040 E53 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.626917</p>
+        <p class="coord">-54.818861</p>
+        <a href="https://www.google.com/maps?q=-22.6269166667,-54.8188611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_040.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_041.jpg" alt="poste 41" /></div>
+      <div class="card-body">
+        <p class="card-id">#041 E54 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.562280</p>
+        <p class="coord">-54.195320</p>
+        <a href="https://www.google.com/maps?q=-23.56228,-54.19532" target="_blank">ver no Maps</a>
+        <p class="filename">poste_041.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_042.jpg" alt="poste 42" /></div>
+      <div class="card-body">
+        <p class="card-id">#042 E55 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.645222</p>
+        <p class="coord">-54.813028</p>
+        <a href="https://www.google.com/maps?q=-22.6452222222,-54.8130277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_042.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#043 E56 <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.704083</p>
+        <p class="coord">-54.268444</p>
+        <a href="https://www.google.com/maps?q=-23.7040833333,-54.2684444444" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_044.jpg" alt="poste 44" /></div>
+      <div class="card-body">
+        <p class="card-id">#044 E57 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.629583</p>
+        <p class="coord">-54.819000</p>
+        <a href="https://www.google.com/maps?q=-22.6295833333,-54.819" target="_blank">ver no Maps</a>
+        <p class="filename">poste_044.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_045.jpg" alt="poste 45" /></div>
+      <div class="card-body">
+        <p class="card-id">#045 E58 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.000770</p>
+        <p class="coord">-54.371620</p>
+        <a href="https://www.google.com/maps?q=-23.00077,-54.37162" target="_blank">ver no Maps</a>
+        <p class="filename">poste_045.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_046.jpg" alt="poste 46" /></div>
+      <div class="card-body">
+        <p class="card-id">#046 E59 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.937889</p>
+        <p class="coord">-54.281028</p>
+        <a href="https://www.google.com/maps?q=-23.9378888889,-54.2810277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_046.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_047.jpg" alt="poste 47" /></div>
+      <div class="card-body">
+        <p class="card-id">#047 E60 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.934361</p>
+        <p class="coord">-54.281472</p>
+        <a href="https://www.google.com/maps?q=-23.9343611111,-54.2814722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_047.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_048.jpg" alt="poste 48" /></div>
+      <div class="card-body">
+        <p class="card-id">#048 E61 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.789278</p>
+        <p class="coord">-54.280250</p>
+        <a href="https://www.google.com/maps?q=-23.7892777778,-54.28025" target="_blank">ver no Maps</a>
+        <p class="filename">poste_048.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_049.jpg" alt="poste 49" /></div>
+      <div class="card-body">
+        <p class="card-id">#049 E62 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867250</p>
+        <p class="coord">-54.606444</p>
+        <a href="https://www.google.com/maps?q=-22.86725,-54.6064444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_049.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_050.jpg" alt="poste 50" /></div>
+      <div class="card-body">
+        <p class="card-id">#050 E63 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.450320</p>
+        <p class="coord">-54.199279</p>
+        <a href="https://www.google.com/maps?q=-23.45032,-54.199279" target="_blank">ver no Maps</a>
+        <p class="filename">poste_050.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_051.jpg" alt="poste 51" /></div>
+      <div class="card-body">
+        <p class="card-id">#051 E64 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.620833</p>
+        <p class="coord">-54.816389</p>
+        <a href="https://www.google.com/maps?q=-22.6208333333,-54.8163888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_051.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_052.jpg" alt="poste 52" /></div>
+      <div class="card-body">
+        <p class="card-id">#052 E65 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.786556</p>
+        <p class="coord">-54.278250</p>
+        <a href="https://www.google.com/maps?q=-23.7865555556,-54.27825" target="_blank">ver no Maps</a>
+        <p class="filename">poste_052.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_053.jpg" alt="poste 53" /></div>
+      <div class="card-body">
+        <p class="card-id">#053 E66 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865167</p>
+        <p class="coord">-54.612667</p>
+        <a href="https://www.google.com/maps?q=-22.8651666667,-54.6126666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_053.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_054.jpg" alt="poste 54" /></div>
+      <div class="card-body">
+        <p class="card-id">#054 E67 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867167</p>
+        <p class="coord">-54.606972</p>
+        <a href="https://www.google.com/maps?q=-22.8671666667,-54.6069722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_054.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_055.jpg" alt="poste 55" /></div>
+      <div class="card-body">
+        <p class="card-id">#055 E68 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863528</p>
+        <p class="coord">-54.617444</p>
+        <a href="https://www.google.com/maps?q=-22.8635277778,-54.6174444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_055.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_056.jpg" alt="poste 56" /></div>
+      <div class="card-body">
+        <p class="card-id">#056 E69 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.927340</p>
+        <p class="coord">-54.495460</p>
+        <a href="https://www.google.com/maps?q=-22.92734,-54.49546" target="_blank">ver no Maps</a>
+        <p class="filename">poste_056.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_057.jpg" alt="poste 57" /></div>
+      <div class="card-body">
+        <p class="card-id">#057 E70 <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005778</p>
+        <p class="coord">-54.312694</p>
+        <a href="https://www.google.com/maps?q=-24.0057777778,-54.3126944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_057.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_058.jpg" alt="poste 58" /></div>
+      <div class="card-body">
+        <p class="card-id">#058 E71 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.220222</p>
+        <p class="coord">-54.216861</p>
+        <a href="https://www.google.com/maps?q=-23.2202222222,-54.2168611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_058.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_059.jpg" alt="poste 59" /></div>
+      <div class="card-body">
+        <p class="card-id">#059 E72 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.953500</p>
+        <p class="coord">-54.446800</p>
+        <a href="https://www.google.com/maps?q=-22.9535,-54.4468" target="_blank">ver no Maps</a>
+        <p class="filename">poste_059.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_060.jpg" alt="poste 60" /></div>
+      <div class="card-body">
+        <p class="card-id">#060 E73 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.879944</p>
+        <p class="coord">-54.596833</p>
+        <a href="https://www.google.com/maps?q=-22.8799444444,-54.5968333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_060.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_061.jpg" alt="poste 61" /></div>
+      <div class="card-body">
+        <p class="card-id">#061 E74 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.636528</p>
+        <p class="coord">-54.243306</p>
+        <a href="https://www.google.com/maps?q=-23.6365277778,-54.2433055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_061.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_062.jpg" alt="poste 62" /></div>
+      <div class="card-body">
+        <p class="card-id">#062 E75 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.388090</p>
+        <p class="coord">-54.211140</p>
+        <a href="https://www.google.com/maps?q=-23.38809,-54.21114" target="_blank">ver no Maps</a>
+        <p class="filename">poste_062.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_063.jpg" alt="poste 63" /></div>
+      <div class="card-body">
+        <p class="card-id">#063 E76 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.628278</p>
+        <p class="coord">-54.819167</p>
+        <a href="https://www.google.com/maps?q=-22.6282777778,-54.8191666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_063.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_064.jpg" alt="poste 64" /></div>
+      <div class="card-body">
+        <p class="card-id">#064 E77 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.217639</p>
+        <p class="coord">-54.214444</p>
+        <a href="https://www.google.com/maps?q=-23.2176388889,-54.2144444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_064.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_065.jpg" alt="poste 65" /></div>
+      <div class="card-body">
+        <p class="card-id">#065 E78 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.060778</p>
+        <p class="coord">-54.232000</p>
+        <a href="https://www.google.com/maps?q=-23.0607777778,-54.232" target="_blank">ver no Maps</a>
+        <p class="filename">poste_065.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_066.jpg" alt="poste 66" /></div>
+      <div class="card-body">
+        <p class="card-id">#066 E79 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.098500</p>
+        <p class="coord">-54.223820</p>
+        <a href="https://www.google.com/maps?q=-23.0985,-54.22382" target="_blank">ver no Maps</a>
+        <p class="filename">poste_066.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_067.jpg" alt="poste 67" /></div>
+      <div class="card-body">
+        <p class="card-id">#067 E80 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.196280</p>
+        <p class="coord">-54.201450</p>
+        <a href="https://www.google.com/maps?q=-23.19628,-54.20145" target="_blank">ver no Maps</a>
+        <p class="filename">poste_067.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_068.jpg" alt="poste 68" /></div>
+      <div class="card-body">
+        <p class="card-id">#068 E81 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.962950</p>
+        <p class="coord">-54.322150</p>
+        <a href="https://www.google.com/maps?q=-23.96295,-54.32215" target="_blank">ver no Maps</a>
+        <p class="filename">poste_068.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_069.jpg" alt="poste 69" /></div>
+      <div class="card-body">
+        <p class="card-id">#069 E82 <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005789</p>
+        <p class="coord">-54.313011</p>
+        <a href="https://www.google.com/maps?q=-24.005789,-54.313011" target="_blank">ver no Maps</a>
+        <p class="filename">poste_069.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_070.jpg" alt="poste 70" /></div>
+      <div class="card-body">
+        <p class="card-id">#070 E83 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.484444</p>
+        <p class="coord">-54.185806</p>
+        <a href="https://www.google.com/maps?q=-23.4844444444,-54.1858055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_070.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_071.jpg" alt="poste 71" /></div>
+      <div class="card-body">
+        <p class="card-id">#071 E84 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.864722</p>
+        <p class="coord">-54.613750</p>
+        <a href="https://www.google.com/maps?q=-22.8647222222,-54.61375" target="_blank">ver no Maps</a>
+        <p class="filename">poste_071.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_072.jpg" alt="poste 72" /></div>
+      <div class="card-body">
+        <p class="card-id">#072 E85 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.482500</p>
+        <p class="coord">-54.186139</p>
+        <a href="https://www.google.com/maps?q=-23.4825,-54.1861388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_072.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_073.jpg" alt="poste 73" /></div>
+      <div class="card-body">
+        <p class="card-id">#073 E86 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863306</p>
+        <p class="coord">-54.618028</p>
+        <a href="https://www.google.com/maps?q=-22.8633055556,-54.6180277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_073.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_074.jpg" alt="poste 74" /></div>
+      <div class="card-body">
+        <p class="card-id">#074 E87 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.923611</p>
+        <p class="coord">-54.285167</p>
+        <a href="https://www.google.com/maps?q=-23.9236111111,-54.2851666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_074.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_075.jpg" alt="poste 75" /></div>
+      <div class="card-body">
+        <p class="card-id">#075 E88 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.919530</p>
+        <p class="coord">-54.512440</p>
+        <a href="https://www.google.com/maps?q=-22.91953,-54.51244" target="_blank">ver no Maps</a>
+        <p class="filename">poste_075.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_076.jpg" alt="poste 76" /></div>
+      <div class="card-body">
+        <p class="card-id">#076 E89 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.640389</p>
+        <p class="coord">-54.813528</p>
+        <a href="https://www.google.com/maps?q=-22.6403888889,-54.8135277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_076.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_077.jpg" alt="poste 77" /></div>
+      <div class="card-body">
+        <p class="card-id">#077 E90 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.923361</p>
+        <p class="coord">-54.285444</p>
+        <a href="https://www.google.com/maps?q=-23.9233611111,-54.2854444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_077.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_078.jpg" alt="poste 78" /></div>
+      <div class="card-body">
+        <p class="card-id">#078 E91  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863444</p>
+        <p class="coord">-54.618083</p>
+        <a href="https://www.google.com/maps?q=-22.8634444444,-54.6180833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_078.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_079.jpg" alt="poste 79" /></div>
+      <div class="card-body">
+        <p class="card-id">#079 E92  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.785806</p>
+        <p class="coord">-54.278139</p>
+        <a href="https://www.google.com/maps?q=-23.7858055556,-54.2781388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_079.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_080.jpg" alt="poste 80" /></div>
+      <div class="card-body">
+        <p class="card-id">#080 E93  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.620111</p>
+        <p class="coord">-54.816306</p>
+        <a href="https://www.google.com/maps?q=-22.6201111111,-54.8163055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_080.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_081.jpg" alt="poste 81" /></div>
+      <div class="card-body">
+        <p class="card-id">#081 E94  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.333440</p>
+        <p class="coord">-54.217710</p>
+        <a href="https://www.google.com/maps?q=-23.33344,-54.21771" target="_blank">ver no Maps</a>
+        <p class="filename">poste_081.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_082.jpg" alt="poste 82" /></div>
+      <div class="card-body">
+        <p class="card-id">#082 E95  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.940167</p>
+        <p class="coord">-54.280750</p>
+        <a href="https://www.google.com/maps?q=-23.9401666667,-54.28075" target="_blank">ver no Maps</a>
+        <p class="filename">poste_082.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_083.jpg" alt="poste 83" /></div>
+      <div class="card-body">
+        <p class="card-id">#083 E96  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863056</p>
+        <p class="coord">-54.618222</p>
+        <a href="https://www.google.com/maps?q=-22.8630555556,-54.6182222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_083.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_084.jpg" alt="poste 84" /></div>
+      <div class="card-body">
+        <p class="card-id">#084 E97  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.621500</p>
+        <p class="coord">-54.816440</p>
+        <a href="https://www.google.com/maps?q=-22.6215,-54.81644" target="_blank">ver no Maps</a>
+        <p class="filename">poste_084.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_085.jpg" alt="poste 85" /></div>
+      <div class="card-body">
+        <p class="card-id">#085 E98  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.797417</p>
+        <p class="coord">-54.289944</p>
+        <a href="https://www.google.com/maps?q=-23.7974166667,-54.2899444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_085.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_086.jpg" alt="poste 86" /></div>
+      <div class="card-body">
+        <p class="card-id">#086 E99  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.939806</p>
+        <p class="coord">-54.280778</p>
+        <a href="https://www.google.com/maps?q=-23.9398055556,-54.2807777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_086.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_087.jpg" alt="poste 87" /></div>
+      <div class="card-body">
+        <p class="card-id">#087 E100  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.792389</p>
+        <p class="coord">-54.283861</p>
+        <a href="https://www.google.com/maps?q=-23.7923888889,-54.2838611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_087.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_088.jpg" alt="poste 88" /></div>
+      <div class="card-body">
+        <p class="card-id">#088 E101  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867694</p>
+        <p class="coord">-54.606583</p>
+        <a href="https://www.google.com/maps?q=-22.8676944444,-54.6065833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_088.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_089.jpg" alt="poste 89" /></div>
+      <div class="card-body">
+        <p class="card-id">#089 E102  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.315660</p>
+        <p class="coord">-54.220310</p>
+        <a href="https://www.google.com/maps?q=-23.31566,-54.22031" target="_blank">ver no Maps</a>
+        <p class="filename">poste_089.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_090.jpg" alt="poste 90" /></div>
+      <div class="card-body">
+        <p class="card-id">#090 E103  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.645306</p>
+        <p class="coord">-54.813111</p>
+        <a href="https://www.google.com/maps?q=-22.6453055556,-54.8131111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_090.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_091.jpg" alt="poste 91" /></div>
+      <div class="card-body">
+        <p class="card-id">#091 E104  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.796250</p>
+        <p class="coord">-54.288528</p>
+        <a href="https://www.google.com/maps?q=-23.79625,-54.2885277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_091.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_092.jpg" alt="poste 92" /></div>
+      <div class="card-body">
+        <p class="card-id">#092 E105  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.481694</p>
+        <p class="coord">-54.186333</p>
+        <a href="https://www.google.com/maps?q=-23.4816944444,-54.1863333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_092.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_093.jpg" alt="poste 93" /></div>
+      <div class="card-body">
+        <p class="card-id">#093 E106  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865472</p>
+        <p class="coord">-54.611778</p>
+        <a href="https://www.google.com/maps?q=-22.8654722222,-54.6117777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_093.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_094.jpg" alt="poste 94" /></div>
+      <div class="card-body">
+        <p class="card-id">#094 E107  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.788750</p>
+        <p class="coord">-54.279611</p>
+        <a href="https://www.google.com/maps?q=-23.78875,-54.2796111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_094.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#095 E108  <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.799350</p>
+        <p class="coord">-54.293510</p>
+        <a href="https://www.google.com/maps?q=-23.79935,-54.29351" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#096 E109  <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.708111</p>
+        <p class="coord">-54.268833</p>
+        <a href="https://www.google.com/maps?q=-23.7081111111,-54.2688333333" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_097.jpg" alt="poste 97" /></div>
+      <div class="card-body">
+        <p class="card-id">#097 E110  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.798778</p>
+        <p class="coord">-54.291639</p>
+        <a href="https://www.google.com/maps?q=-23.7987777778,-54.2916388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_097.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_098.jpg" alt="poste 98" /></div>
+      <div class="card-body">
+        <p class="card-id">#098 E111  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.450508</p>
+        <p class="coord">-54.199306</p>
+        <a href="https://www.google.com/maps?q=-23.450508,-54.199306" target="_blank">ver no Maps</a>
+        <p class="filename">poste_098.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_099.jpg" alt="poste 99" /></div>
+      <div class="card-body">
+        <p class="card-id">#099 E112  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.582028</p>
+        <p class="coord">-54.198972</p>
+        <a href="https://www.google.com/maps?q=-23.5820277778,-54.1989722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_099.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_100.jpg" alt="poste 100" /></div>
+      <div class="card-body">
+        <p class="card-id">#100 E113  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.158778</p>
+        <p class="coord">-54.198500</p>
+        <a href="https://www.google.com/maps?q=-23.1587777778,-54.1985" target="_blank">ver no Maps</a>
+        <p class="filename">poste_100.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#101 E114  <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.709028</p>
+        <p class="coord">-54.269000</p>
+        <a href="https://www.google.com/maps?q=-23.7090277778,-54.269" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_102.jpg" alt="poste 102" /></div>
+      <div class="card-body">
+        <p class="card-id">#102 E115  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.475917</p>
+        <p class="coord">-54.188000</p>
+        <a href="https://www.google.com/maps?q=-23.4759166667,-54.188" target="_blank">ver no Maps</a>
+        <p class="filename">poste_102.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_103.jpg" alt="poste 103" /></div>
+      <div class="card-body">
+        <p class="card-id">#103 E116  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.424861</p>
+        <p class="coord">-54.206694</p>
+        <a href="https://www.google.com/maps?q=-23.4248611111,-54.2066944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_103.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_104.jpg" alt="poste 104" /></div>
+      <div class="card-body">
+        <p class="card-id">#104 E117  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.023444</p>
+        <p class="coord">-54.291167</p>
+        <a href="https://www.google.com/maps?q=-24.0234444444,-54.2911666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_104.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_105.jpg" alt="poste 105" /></div>
+      <div class="card-body">
+        <p class="card-id">#105 E118  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.634028</p>
+        <p class="coord">-54.818444</p>
+        <a href="https://www.google.com/maps?q=-22.6340277778,-54.8184444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_105.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_106.jpg" alt="poste 106" /></div>
+      <div class="card-body">
+        <p class="card-id">#106 E119  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.795583</p>
+        <p class="coord">-54.287667</p>
+        <a href="https://www.google.com/maps?q=-23.7955833333,-54.2876666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_106.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_107.jpg" alt="poste 107" /></div>
+      <div class="card-body">
+        <p class="card-id">#107 E120  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.114970</p>
+        <p class="coord">-54.218000</p>
+        <a href="https://www.google.com/maps?q=-23.11497,-54.218" target="_blank">ver no Maps</a>
+        <p class="filename">poste_107.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_108.jpg" alt="poste 108" /></div>
+      <div class="card-body">
+        <p class="card-id">#108 E121  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.922778</p>
+        <p class="coord">-54.285861</p>
+        <a href="https://www.google.com/maps?q=-23.9227777778,-54.2858611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_108.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_109.jpg" alt="poste 109" /></div>
+      <div class="card-body">
+        <p class="card-id">#109 E122  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.591290</p>
+        <p class="coord">-54.214370</p>
+        <a href="https://www.google.com/maps?q=-23.59129,-54.21437" target="_blank">ver no Maps</a>
+        <p class="filename">poste_109.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_110.jpg" alt="poste 110" /></div>
+      <div class="card-body">
+        <p class="card-id">#110 E123  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.481944</p>
+        <p class="coord">-54.186278</p>
+        <a href="https://www.google.com/maps?q=-23.4819444444,-54.1862777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_110.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_111.jpg" alt="poste 111" /></div>
+      <div class="card-body">
+        <p class="card-id">#111 E124  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.797861</p>
+        <p class="coord">-54.290500</p>
+        <a href="https://www.google.com/maps?q=-23.7978611111,-54.2905" target="_blank">ver no Maps</a>
+        <p class="filename">poste_111.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_112.jpg" alt="poste 112" /></div>
+      <div class="card-body">
+        <p class="card-id">#112 E125  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.864389</p>
+        <p class="coord">-54.614889</p>
+        <a href="https://www.google.com/maps?q=-22.8643888889,-54.6148888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_112.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_113.jpg" alt="poste 113" /></div>
+      <div class="card-body">
+        <p class="card-id">#113 E126  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.868139</p>
+        <p class="coord">-54.605694</p>
+        <a href="https://www.google.com/maps?q=-22.8681388889,-54.6056944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_113.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_114.jpg" alt="poste 114" /></div>
+      <div class="card-body">
+        <p class="card-id">#114 E127  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.978720</p>
+        <p class="coord">-54.330890</p>
+        <a href="https://www.google.com/maps?q=-23.97872,-54.33089" target="_blank">ver no Maps</a>
+        <p class="filename">poste_114.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_115.jpg" alt="poste 115" /></div>
+      <div class="card-body">
+        <p class="card-id">#115 E128  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.630944</p>
+        <p class="coord">-54.818972</p>
+        <a href="https://www.google.com/maps?q=-22.6309444444,-54.8189722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_115.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_116.jpg" alt="poste 116" /></div>
+      <div class="card-body">
+        <p class="card-id">#116 E129  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865583</p>
+        <p class="coord">-54.611444</p>
+        <a href="https://www.google.com/maps?q=-22.8655833333,-54.6114444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_116.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_117.jpg" alt="poste 117" /></div>
+      <div class="card-body">
+        <p class="card-id">#117 E130  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.795000</p>
+        <p class="coord">-54.287056</p>
+        <a href="https://www.google.com/maps?q=-23.795,-54.2870555556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_117.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_118.jpg" alt="poste 118" /></div>
+      <div class="card-body">
+        <p class="card-id">#118 E131  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.005917</p>
+        <p class="coord">-54.349250</p>
+        <a href="https://www.google.com/maps?q=-23.0059166667,-54.34925" target="_blank">ver no Maps</a>
+        <p class="filename">poste_118.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_119.jpg" alt="poste 119" /></div>
+      <div class="card-body">
+        <p class="card-id">#119 E132  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.625639</p>
+        <p class="coord">-54.236306</p>
+        <a href="https://www.google.com/maps?q=-23.6256388889,-54.2363055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_119.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_120.jpg" alt="poste 120" /></div>
+      <div class="card-body">
+        <p class="card-id">#120 E133  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.866250</p>
+        <p class="coord">-54.609667</p>
+        <a href="https://www.google.com/maps?q=-22.86625,-54.6096666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_120.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_121.jpg" alt="poste 121" /></div>
+      <div class="card-body">
+        <p class="card-id">#121 E134  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.639278</p>
+        <p class="coord">-54.814194</p>
+        <a href="https://www.google.com/maps?q=-22.6392777778,-54.8141944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_121.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_122.jpg" alt="poste 122" /></div>
+      <div class="card-body">
+        <p class="card-id">#122 E135  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.925472</p>
+        <p class="coord">-54.283222</p>
+        <a href="https://www.google.com/maps?q=-23.9254722222,-54.2832222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_122.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_123.jpg" alt="poste 123" /></div>
+      <div class="card-body">
+        <p class="card-id">#123 E136  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867944</p>
+        <p class="coord">-54.605722</p>
+        <a href="https://www.google.com/maps?q=-22.8679444444,-54.6057222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_123.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_124.jpg" alt="poste 124" /></div>
+      <div class="card-body">
+        <p class="card-id">#124 E137  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.405050</p>
+        <p class="coord">-54.209160</p>
+        <a href="https://www.google.com/maps?q=-23.40505,-54.20916" target="_blank">ver no Maps</a>
+        <p class="filename">poste_124.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_125.jpg" alt="poste 125" /></div>
+      <div class="card-body">
+        <p class="card-id">#125 E138  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865000</p>
+        <p class="coord">-54.613111</p>
+        <a href="https://www.google.com/maps?q=-22.865,-54.6131111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_125.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_126.jpg" alt="poste 126" /></div>
+      <div class="card-body">
+        <p class="card-id">#126 E139  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.653200</p>
+        <p class="coord">-54.253910</p>
+        <a href="https://www.google.com/maps?q=-23.6532,-54.25391" target="_blank">ver no Maps</a>
+        <p class="filename">poste_126.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_127.jpg" alt="poste 127" /></div>
+      <div class="card-body">
+        <p class="card-id">#127 E140  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.622250</p>
+        <p class="coord">-54.816611</p>
+        <a href="https://www.google.com/maps?q=-22.62225,-54.8166111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_127.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_128.jpg" alt="poste 128" /></div>
+      <div class="card-body">
+        <p class="card-id">#128 E141  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.037528</p>
+        <p class="coord">-54.264917</p>
+        <a href="https://www.google.com/maps?q=-23.0375277778,-54.2649166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_128.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_129.jpg" alt="poste 129" /></div>
+      <div class="card-body">
+        <p class="card-id">#129 E142  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.669722</p>
+        <p class="coord">-54.264056</p>
+        <a href="https://www.google.com/maps?q=-23.6697222222,-54.2640555556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_129.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_130.jpg" alt="poste 130" /></div>
+      <div class="card-body">
+        <p class="card-id">#130 E143  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.785917</p>
+        <p class="coord">-54.278250</p>
+        <a href="https://www.google.com/maps?q=-23.7859166667,-54.27825" target="_blank">ver no Maps</a>
+        <p class="filename">poste_130.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_131.jpg" alt="poste 131" /></div>
+      <div class="card-body">
+        <p class="card-id">#131 E144  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.644583</p>
+        <p class="coord">-54.812778</p>
+        <a href="https://www.google.com/maps?q=-22.6445833333,-54.8127777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_131.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_132.jpg" alt="poste 132" /></div>
+      <div class="card-body">
+        <p class="card-id">#132 E145  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.279570</p>
+        <p class="coord">-54.226060</p>
+        <a href="https://www.google.com/maps?q=-23.27957,-54.22606" target="_blank">ver no Maps</a>
+        <p class="filename">poste_132.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_133.jpg" alt="poste 133" /></div>
+      <div class="card-body">
+        <p class="card-id">#133 E146  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.055944</p>
+        <p class="coord">-54.235278</p>
+        <a href="https://www.google.com/maps?q=-23.0559444444,-54.2352777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_133.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_134.jpg" alt="poste 134" /></div>
+      <div class="card-body">
+        <p class="card-id">#134 E147  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865389</p>
+        <p class="coord">-54.612028</p>
+        <a href="https://www.google.com/maps?q=-22.8653888889,-54.6120277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_134.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_135.jpg" alt="poste 135" /></div>
+      <div class="card-body">
+        <p class="card-id">#135 E148  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.221194</p>
+        <p class="coord">-54.217500</p>
+        <a href="https://www.google.com/maps?q=-23.2211944444,-54.2175" target="_blank">ver no Maps</a>
+        <p class="filename">poste_135.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_136.jpg" alt="poste 136" /></div>
+      <div class="card-body">
+        <p class="card-id">#136 E149  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005028</p>
+        <p class="coord">-54.313528</p>
+        <a href="https://www.google.com/maps?q=-24.0050277778,-54.3135277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_136.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_137.jpg" alt="poste 137" /></div>
+      <div class="card-body">
+        <p class="card-id">#137 E150  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.866972</p>
+        <p class="coord">-54.607639</p>
+        <a href="https://www.google.com/maps?q=-22.8669722222,-54.6076388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_137.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_138.jpg" alt="poste 138" /></div>
+      <div class="card-body">
+        <p class="card-id">#138 E151  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.223250</p>
+        <p class="coord">-54.218500</p>
+        <a href="https://www.google.com/maps?q=-23.22325,-54.2185" target="_blank">ver no Maps</a>
+        <p class="filename">poste_138.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_139.jpg" alt="poste 139" /></div>
+      <div class="card-body">
+        <p class="card-id">#139 E152  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.142060</p>
+        <p class="coord">-54.196190</p>
+        <a href="https://www.google.com/maps?q=-23.14206,-54.19619" target="_blank">ver no Maps</a>
+        <p class="filename">poste_139.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_140.jpg" alt="poste 140" /></div>
+      <div class="card-body">
+        <p class="card-id">#140 E153  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.631528</p>
+        <p class="coord">-54.819111</p>
+        <a href="https://www.google.com/maps?q=-22.6315277778,-54.8191111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_140.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_141.jpg" alt="poste 141" /></div>
+      <div class="card-body">
+        <p class="card-id">#141 E154  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.491490</p>
+        <p class="coord">-54.185500</p>
+        <a href="https://www.google.com/maps?q=-23.49149,-54.1855" target="_blank">ver no Maps</a>
+        <p class="filename">poste_141.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_142.jpg" alt="poste 142" /></div>
+      <div class="card-body">
+        <p class="card-id">#142 E155  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.297430</p>
+        <p class="coord">-54.223310</p>
+        <a href="https://www.google.com/maps?q=-23.29743,-54.22331" target="_blank">ver no Maps</a>
+        <p class="filename">poste_142.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_143.jpg" alt="poste 143" /></div>
+      <div class="card-body">
+        <p class="card-id">#143 E156  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.925806</p>
+        <p class="coord">-54.283306</p>
+        <a href="https://www.google.com/maps?q=-23.9258055556,-54.2833055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_143.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_144.jpg" alt="poste 144" /></div>
+      <div class="card-body">
+        <p class="card-id">#144 E157  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.635861</p>
+        <p class="coord">-54.816972</p>
+        <a href="https://www.google.com/maps?q=-22.6358611111,-54.8169722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_144.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#145 E158  <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.706750</p>
+        <p class="coord">-54.268639</p>
+        <a href="https://www.google.com/maps?q=-23.70675,-54.2686388889" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_146.jpg" alt="poste 146" /></div>
+      <div class="card-body">
+        <p class="card-id">#146 E159  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867222</p>
+        <p class="coord">-54.607417</p>
+        <a href="https://www.google.com/maps?q=-22.8672222222,-54.6074166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_146.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_147.jpg" alt="poste 147" /></div>
+      <div class="card-body">
+        <p class="card-id">#147 E160  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.797639</p>
+        <p class="coord">-54.290222</p>
+        <a href="https://www.google.com/maps?q=-23.7976388889,-54.2902222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_147.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_148.jpg" alt="poste 148" /></div>
+      <div class="card-body">
+        <p class="card-id">#148 E161  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.640667</p>
+        <p class="coord">-54.813306</p>
+        <a href="https://www.google.com/maps?q=-22.6406666667,-54.8133055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_148.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_149.jpg" alt="poste 149" /></div>
+      <div class="card-body">
+        <p class="card-id">#149 E162  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.450150</p>
+        <p class="coord">-54.199359</p>
+        <a href="https://www.google.com/maps?q=-23.45015,-54.199359" target="_blank">ver no Maps</a>
+        <p class="filename">poste_149.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_150.jpg" alt="poste 150" /></div>
+      <div class="card-body">
+        <p class="card-id">#150 E163  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.941583</p>
+        <p class="coord">-54.280583</p>
+        <a href="https://www.google.com/maps?q=-23.9415833333,-54.2805833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_150.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_151.jpg" alt="poste 151" /></div>
+      <div class="card-body">
+        <p class="card-id">#151 E164  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.786139</p>
+        <p class="coord">-54.277806</p>
+        <a href="https://www.google.com/maps?q=-23.7861388889,-54.2778055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_151.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_152.jpg" alt="poste 152" /></div>
+      <div class="card-body">
+        <p class="card-id">#152 E165  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.792167</p>
+        <p class="coord">-54.283667</p>
+        <a href="https://www.google.com/maps?q=-23.7921666667,-54.2836666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_152.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_153.jpg" alt="poste 153" /></div>
+      <div class="card-body">
+        <p class="card-id">#153 E166  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.792667</p>
+        <p class="coord">-54.284139</p>
+        <a href="https://www.google.com/maps?q=-23.7926666667,-54.2841388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_153.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_154.jpg" alt="poste 154" /></div>
+      <div class="card-body">
+        <p class="card-id">#154 E167  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.022194</p>
+        <p class="coord">-54.292278</p>
+        <a href="https://www.google.com/maps?q=-24.0221944444,-54.2922777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_154.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_155.jpg" alt="poste 155" /></div>
+      <div class="card-body">
+        <p class="card-id">#155 E168  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867389</p>
+        <p class="coord">-54.607306</p>
+        <a href="https://www.google.com/maps?q=-22.8673888889,-54.6073055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_155.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_156.jpg" alt="poste 156" /></div>
+      <div class="card-body">
+        <p class="card-id">#156 E169  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.776333</p>
+        <p class="coord">-54.276472</p>
+        <a href="https://www.google.com/maps?q=-23.7763333333,-54.2764722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_156.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_157.jpg" alt="poste 157" /></div>
+      <div class="card-body">
+        <p class="card-id">#157 E170  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863111</p>
+        <p class="coord">-54.618389</p>
+        <a href="https://www.google.com/maps?q=-22.8631111111,-54.6183888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_157.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_158.jpg" alt="poste 158" /></div>
+      <div class="card-body">
+        <p class="card-id">#158 E171  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.636833</p>
+        <p class="coord">-54.816111</p>
+        <a href="https://www.google.com/maps?q=-22.6368333333,-54.8161111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_158.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_159.jpg" alt="poste 159" /></div>
+      <div class="card-body">
+        <p class="card-id">#159 E172  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.057639</p>
+        <p class="coord">-54.233611</p>
+        <a href="https://www.google.com/maps?q=-23.0576388889,-54.2336111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_159.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_160.jpg" alt="poste 160" /></div>
+      <div class="card-body">
+        <p class="card-id">#160 E173  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.039630</p>
+        <p class="coord">-54.261040</p>
+        <a href="https://www.google.com/maps?q=-23.03963,-54.26104" target="_blank">ver no Maps</a>
+        <p class="filename">poste_160.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_161.jpg" alt="poste 161" /></div>
+      <div class="card-body">
+        <p class="card-id">#161 E174  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.102944</p>
+        <p class="coord">-54.222889</p>
+        <a href="https://www.google.com/maps?q=-23.1029444444,-54.2228888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_161.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_162.jpg" alt="poste 162" /></div>
+      <div class="card-body">
+        <p class="card-id">#162 E175  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005279</p>
+        <p class="coord">-54.312491</p>
+        <a href="https://www.google.com/maps?q=-24.005279,-54.312491" target="_blank">ver no Maps</a>
+        <p class="filename">poste_162.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_163.jpg" alt="poste 163" /></div>
+      <div class="card-body">
+        <p class="card-id">#163 E176  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.864556</p>
+        <p class="coord">-54.614333</p>
+        <a href="https://www.google.com/maps?q=-22.8645555556,-54.6143333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_163.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_164.jpg" alt="poste 164" /></div>
+      <div class="card-body">
+        <p class="card-id">#164 E177  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.638500</p>
+        <p class="coord">-54.814833</p>
+        <a href="https://www.google.com/maps?q=-22.6385,-54.8148333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_164.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_165.jpg" alt="poste 165" /></div>
+      <div class="card-body">
+        <p class="card-id">#165 E178  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.997530</p>
+        <p class="coord">-54.386630</p>
+        <a href="https://www.google.com/maps?q=-22.99753,-54.38663" target="_blank">ver no Maps</a>
+        <p class="filename">poste_165.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_166.jpg" alt="poste 166" /></div>
+      <div class="card-body">
+        <p class="card-id">#166 E179  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.001722</p>
+        <p class="coord">-54.318361</p>
+        <a href="https://www.google.com/maps?q=-24.0017222222,-54.3183611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_166.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_167.jpg" alt="poste 167" /></div>
+      <div class="card-body">
+        <p class="card-id">#167 E180  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005622</p>
+        <p class="coord">-54.312937</p>
+        <a href="https://www.google.com/maps?q=-24.005622,-54.312937" target="_blank">ver no Maps</a>
+        <p class="filename">poste_167.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_168.jpg" alt="poste 168" /></div>
+      <div class="card-body">
+        <p class="card-id">#168 E181  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.023972</p>
+        <p class="coord">-54.290944</p>
+        <a href="https://www.google.com/maps?q=-24.0239722222,-54.2909444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_168.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_169.jpg" alt="poste 169" /></div>
+      <div class="card-body">
+        <p class="card-id">#169 E182  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.640083</p>
+        <p class="coord">-54.813750</p>
+        <a href="https://www.google.com/maps?q=-22.6400833333,-54.81375" target="_blank">ver no Maps</a>
+        <p class="filename">poste_169.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_170.jpg" alt="poste 170" /></div>
+      <div class="card-body">
+        <p class="card-id">#170 E183  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.631194</p>
+        <p class="coord">-54.819083</p>
+        <a href="https://www.google.com/maps?q=-22.6311944444,-54.8190833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_170.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_171.jpg" alt="poste 171" /></div>
+      <div class="card-body">
+        <p class="card-id">#171 E184  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.639028</p>
+        <p class="coord">-54.814417</p>
+        <a href="https://www.google.com/maps?q=-22.6390277778,-54.8144166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_171.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_172.jpg" alt="poste 172" /></div>
+      <div class="card-body">
+        <p class="card-id">#172 E185  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.260880</p>
+        <p class="coord">-54.228310</p>
+        <a href="https://www.google.com/maps?q=-23.26088,-54.22831" target="_blank">ver no Maps</a>
+        <p class="filename">poste_172.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_173.jpg" alt="poste 173" /></div>
+      <div class="card-body">
+        <p class="card-id">#173 E186  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867389</p>
+        <p class="coord">-54.607056</p>
+        <a href="https://www.google.com/maps?q=-22.8673888889,-54.6070555556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_173.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_174.jpg" alt="poste 174" /></div>
+      <div class="card-body">
+        <p class="card-id">#174 E187  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.218167</p>
+        <p class="coord">-54.215333</p>
+        <a href="https://www.google.com/maps?q=-23.2181666667,-54.2153333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_174.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_175.jpg" alt="poste 175" /></div>
+      <div class="card-body">
+        <p class="card-id">#175 E188  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005056</p>
+        <p class="coord">-54.313333</p>
+        <a href="https://www.google.com/maps?q=-24.0050555556,-54.3133333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_175.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_176.jpg" alt="poste 176" /></div>
+      <div class="card-body">
+        <p class="card-id">#176 E189  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.940889</p>
+        <p class="coord">-54.280722</p>
+        <a href="https://www.google.com/maps?q=-23.9408888889,-54.2807222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_176.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_177.jpg" alt="poste 177" /></div>
+      <div class="card-body">
+        <p class="card-id">#177 E190  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.703139</p>
+        <p class="coord">-54.268472</p>
+        <a href="https://www.google.com/maps?q=-23.7031388889,-54.2684722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_177.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_178.jpg" alt="poste 178" /></div>
+      <div class="card-body">
+        <p class="card-id">#178 E191  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.867556</p>
+        <p class="coord">-54.606611</p>
+        <a href="https://www.google.com/maps?q=-22.8675555556,-54.6066111111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_178.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_179.jpg" alt="poste 179" /></div>
+      <div class="card-body">
+        <p class="card-id">#179 E192  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.939000</p>
+        <p class="coord">-54.280889</p>
+        <a href="https://www.google.com/maps?q=-23.939,-54.2808888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_179.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_180.jpg" alt="poste 180" /></div>
+      <div class="card-body">
+        <p class="card-id">#180 E193  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.845420</p>
+        <p class="coord">-54.664840</p>
+        <a href="https://www.google.com/maps?q=-22.84542,-54.66484" target="_blank">ver no Maps</a>
+        <p class="filename">poste_180.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_181.jpg" alt="poste 181" /></div>
+      <div class="card-body">
+        <p class="card-id">#181 E194  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.785444</p>
+        <p class="coord">-54.277889</p>
+        <a href="https://www.google.com/maps?q=-23.7854444444,-54.2778888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_181.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_182.jpg" alt="poste 182" /></div>
+      <div class="card-body">
+        <p class="card-id">#182 E195  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.077917</p>
+        <p class="coord">-54.227806</p>
+        <a href="https://www.google.com/maps?q=-23.0779166667,-54.2278055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_182.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img">
+        <div class="no-img">Sem Street View</div>
+      </div>
+      <div class="card-body">
+        <p class="card-id">#183 E196  <span class="badge skip">sem cobertura</span></p>
+        <p class="coord">-23.369390</p>
+        <p class="coord">-54.212910</p>
+        <a href="https://www.google.com/maps?q=-23.36939,-54.21291" target="_blank">ver no Maps</a>
+
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_184.jpg" alt="poste 184" /></div>
+      <div class="card-body">
+        <p class="card-id">#184 E197  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.637390</p>
+        <p class="coord">-54.243870</p>
+        <a href="https://www.google.com/maps?q=-23.63739,-54.24387" target="_blank">ver no Maps</a>
+        <p class="filename">poste_184.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_185.jpg" alt="poste 185" /></div>
+      <div class="card-body">
+        <p class="card-id">#185 E198  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.624889</p>
+        <p class="coord">-54.817694</p>
+        <a href="https://www.google.com/maps?q=-22.6248888889,-54.8176944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_185.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_186.jpg" alt="poste 186" /></div>
+      <div class="card-body">
+        <p class="card-id">#186 E199  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.625639</p>
+        <p class="coord">-54.818361</p>
+        <a href="https://www.google.com/maps?q=-22.6256388889,-54.8183611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_186.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_187.jpg" alt="poste 187" /></div>
+      <div class="card-body">
+        <p class="card-id">#187 E200  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.863583</p>
+        <p class="coord">-54.617667</p>
+        <a href="https://www.google.com/maps?q=-22.8635833333,-54.6176666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_187.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_188.jpg" alt="poste 188" /></div>
+      <div class="card-body">
+        <p class="card-id">#188 E201  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.133111</p>
+        <p class="coord">-54.197778</p>
+        <a href="https://www.google.com/maps?q=-23.1331111111,-54.1977777778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_188.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_189.jpg" alt="poste 189" /></div>
+      <div class="card-body">
+        <p class="card-id">#189 E202  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.628472</p>
+        <p class="coord">-54.819167</p>
+        <a href="https://www.google.com/maps?q=-22.6284722222,-54.8191666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_189.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_190.jpg" alt="poste 190" /></div>
+      <div class="card-body">
+        <p class="card-id">#190 E203  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.923000</p>
+        <p class="coord">-54.285722</p>
+        <a href="https://www.google.com/maps?q=-23.923,-54.2857222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_190.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_191.jpg" alt="poste 191" /></div>
+      <div class="card-body">
+        <p class="card-id">#191 E204  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.001250</p>
+        <p class="coord">-54.319028</p>
+        <a href="https://www.google.com/maps?q=-24.00125,-54.3190277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_191.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_192.jpg" alt="poste 192" /></div>
+      <div class="card-body">
+        <p class="card-id">#192 E205  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.127160</p>
+        <p class="coord">-54.203110</p>
+        <a href="https://www.google.com/maps?q=-23.12716,-54.20311" target="_blank">ver no Maps</a>
+        <p class="filename">poste_192.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_193.jpg" alt="poste 193" /></div>
+      <div class="card-body">
+        <p class="card-id">#193 E206  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005547</p>
+        <p class="coord">-54.312258</p>
+        <a href="https://www.google.com/maps?q=-24.00554662273174,-54.3122576128345" target="_blank">ver no Maps</a>
+        <p class="filename">poste_193.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_194.jpg" alt="poste 194" /></div>
+      <div class="card-body">
+        <p class="card-id">#194 E207  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.786000</p>
+        <p class="coord">-54.277806</p>
+        <a href="https://www.google.com/maps?q=-23.786,-54.2778055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_194.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_195.jpg" alt="poste 195" /></div>
+      <div class="card-body">
+        <p class="card-id">#195 E208  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.790889</p>
+        <p class="coord">-54.282139</p>
+        <a href="https://www.google.com/maps?q=-23.7908888889,-54.2821388889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_195.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_196.jpg" alt="poste 196" /></div>
+      <div class="card-body">
+        <p class="card-id">#196 E209  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.775680</p>
+        <p class="coord">-54.276450</p>
+        <a href="https://www.google.com/maps?q=-23.77568,-54.27645" target="_blank">ver no Maps</a>
+        <p class="filename">poste_196.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_197.jpg" alt="poste 197" /></div>
+      <div class="card-body">
+        <p class="card-id">#197 E210  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.835610</p>
+        <p class="coord">-54.677720</p>
+        <a href="https://www.google.com/maps?q=-22.83561,-54.67772" target="_blank">ver no Maps</a>
+        <p class="filename">poste_197.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_198.jpg" alt="poste 198" /></div>
+      <div class="card-body">
+        <p class="card-id">#198 E211  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.926222</p>
+        <p class="coord">-54.283000</p>
+        <a href="https://www.google.com/maps?q=-23.9262222222,-54.283" target="_blank">ver no Maps</a>
+        <p class="filename">poste_198.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_199.jpg" alt="poste 199" /></div>
+      <div class="card-body">
+        <p class="card-id">#199 E212  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.755730</p>
+        <p class="coord">-54.266120</p>
+        <a href="https://www.google.com/maps?q=-23.75573,-54.26612" target="_blank">ver no Maps</a>
+        <p class="filename">poste_199.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_200.jpg" alt="poste 200" /></div>
+      <div class="card-body">
+        <p class="card-id">#200 E213  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.865306</p>
+        <p class="coord">-54.612306</p>
+        <a href="https://www.google.com/maps?q=-22.8653055556,-54.6123055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_200.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_201.jpg" alt="poste 201" /></div>
+      <div class="card-body">
+        <p class="card-id">#201 E214  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.177770</p>
+        <p class="coord">-54.200050</p>
+        <a href="https://www.google.com/maps?q=-23.17777,-54.20005" target="_blank">ver no Maps</a>
+        <p class="filename">poste_201.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_202.jpg" alt="poste 202" /></div>
+      <div class="card-body">
+        <p class="card-id">#202 E215  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.931972</p>
+        <p class="coord">-54.281750</p>
+        <a href="https://www.google.com/maps?q=-23.9319722222,-54.28175" target="_blank">ver no Maps</a>
+        <p class="filename">poste_202.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_203.jpg" alt="poste 203" /></div>
+      <div class="card-body">
+        <p class="card-id">#203 E216  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.640444</p>
+        <p class="coord">-54.813333</p>
+        <a href="https://www.google.com/maps?q=-22.6404444444,-54.8133333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_203.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_204.jpg" alt="poste 204" /></div>
+      <div class="card-body">
+        <p class="card-id">#204 E217  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.633694</p>
+        <p class="coord">-54.818667</p>
+        <a href="https://www.google.com/maps?q=-22.6336944444,-54.8186666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_204.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_205.jpg" alt="poste 205" /></div>
+      <div class="card-body">
+        <p class="card-id">#205 E218  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.930194</p>
+        <p class="coord">-54.281944</p>
+        <a href="https://www.google.com/maps?q=-23.9301944444,-54.2819444444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_205.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_206.jpg" alt="poste 206" /></div>
+      <div class="card-body">
+        <p class="card-id">#206 E219  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.285080</p>
+        <p class="coord">-54.224970</p>
+        <a href="https://www.google.com/maps?q=-23.28508,-54.22497" target="_blank">ver no Maps</a>
+        <p class="filename">poste_206.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_207.jpg" alt="poste 207" /></div>
+      <div class="card-body">
+        <p class="card-id">#207 E220  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.112750</p>
+        <p class="coord">-54.219722</p>
+        <a href="https://www.google.com/maps?q=-23.11275,-54.2197222222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_207.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_208.jpg" alt="poste 208" /></div>
+      <div class="card-body">
+        <p class="card-id">#208 E221  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.900222</p>
+        <p class="coord">-54.556083</p>
+        <a href="https://www.google.com/maps?q=-22.9002222222,-54.5560833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_208.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_209.jpg" alt="poste 209" /></div>
+      <div class="card-body">
+        <p class="card-id">#209 E222  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.798222</p>
+        <p class="coord">-54.290556</p>
+        <a href="https://www.google.com/maps?q=-23.7982222222,-54.2905555556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_209.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_210.jpg" alt="poste 210" /></div>
+      <div class="card-body">
+        <p class="card-id">#210 E223  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.645444</p>
+        <p class="coord">-54.812861</p>
+        <a href="https://www.google.com/maps?q=-22.6454444444,-54.8128611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_210.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_211.jpg" alt="poste 211" /></div>
+      <div class="card-body">
+        <p class="card-id">#211 E224  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.645500</p>
+        <p class="coord">-54.812972</p>
+        <a href="https://www.google.com/maps?q=-22.6455,-54.8129722222" target="_blank">ver no Maps</a>
+        <p class="filename">poste_211.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_212.jpg" alt="poste 212" /></div>
+      <div class="card-body">
+        <p class="card-id">#212 E225  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.936639</p>
+        <p class="coord">-54.281167</p>
+        <a href="https://www.google.com/maps?q=-23.9366388889,-54.2811666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_212.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_213.jpg" alt="poste 213" /></div>
+      <div class="card-body">
+        <p class="card-id">#213 E226  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.637417</p>
+        <p class="coord">-54.815667</p>
+        <a href="https://www.google.com/maps?q=-22.6374166667,-54.8156666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_213.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_214.jpg" alt="poste 214" /></div>
+      <div class="card-body">
+        <p class="card-id">#214 E227  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.836809</p>
+        <p class="coord">-54.675746</p>
+        <a href="https://www.google.com/maps?q=-22.836809,-54.675746" target="_blank">ver no Maps</a>
+        <p class="filename">poste_214.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_215.jpg" alt="poste 215" /></div>
+      <div class="card-body">
+        <p class="card-id">#215 E228  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.791556</p>
+        <p class="coord">-54.282917</p>
+        <a href="https://www.google.com/maps?q=-23.7915555556,-54.2829166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_215.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_216.jpg" alt="poste 216" /></div>
+      <div class="card-body">
+        <p class="card-id">#216 E229  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.627889</p>
+        <p class="coord">-54.819167</p>
+        <a href="https://www.google.com/maps?q=-22.6278888889,-54.8191666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_216.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_217.jpg" alt="poste 217" /></div>
+      <div class="card-body">
+        <p class="card-id">#217 E230  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.793778</p>
+        <p class="coord">-54.285528</p>
+        <a href="https://www.google.com/maps?q=-23.7937777778,-54.2855277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_217.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_218.jpg" alt="poste 218" /></div>
+      <div class="card-body">
+        <p class="card-id">#218 E231  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.672667</p>
+        <p class="coord">-54.265333</p>
+        <a href="https://www.google.com/maps?q=-23.6726666667,-54.2653333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_218.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_219.jpg" alt="poste 219" /></div>
+      <div class="card-body">
+        <p class="card-id">#219 E232  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.219111</p>
+        <p class="coord">-54.216000</p>
+        <a href="https://www.google.com/maps?q=-23.2191111111,-54.216" target="_blank">ver no Maps</a>
+        <p class="filename">poste_219.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_220.jpg" alt="poste 220" /></div>
+      <div class="card-body">
+        <p class="card-id">#220 E233  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.634556</p>
+        <p class="coord">-54.817833</p>
+        <a href="https://www.google.com/maps?q=-22.6345555556,-54.8178333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_220.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_221.jpg" alt="poste 221" /></div>
+      <div class="card-body">
+        <p class="card-id">#221 E234  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.626778</p>
+        <p class="coord">-54.818917</p>
+        <a href="https://www.google.com/maps?q=-22.6267777778,-54.8189166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_221.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_222.jpg" alt="poste 222" /></div>
+      <div class="card-body">
+        <p class="card-id">#222 E235  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.636528</p>
+        <p class="coord">-54.816306</p>
+        <a href="https://www.google.com/maps?q=-22.6365277778,-54.8163055556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_222.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_223.jpg" alt="poste 223" /></div>
+      <div class="card-body">
+        <p class="card-id">#223 E236  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.000330</p>
+        <p class="coord">-54.373510</p>
+        <a href="https://www.google.com/maps?q=-23.00033,-54.37351" target="_blank">ver no Maps</a>
+        <p class="filename">poste_223.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_224.jpg" alt="poste 224" /></div>
+      <div class="card-body">
+        <p class="card-id">#224 E237  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.623611</p>
+        <p class="coord">-54.817083</p>
+        <a href="https://www.google.com/maps?q=-22.6236111111,-54.8170833333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_224.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_225.jpg" alt="poste 225" /></div>
+      <div class="card-body">
+        <p class="card-id">#225 E238  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.942750</p>
+        <p class="coord">-54.462330</p>
+        <a href="https://www.google.com/maps?q=-22.94275,-54.46233" target="_blank">ver no Maps</a>
+        <p class="filename">poste_225.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_226.jpg" alt="poste 226" /></div>
+      <div class="card-body">
+        <p class="card-id">#226 E239  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.474750</p>
+        <p class="coord">-54.188056</p>
+        <a href="https://www.google.com/maps?q=-23.47475,-54.1880555556" target="_blank">ver no Maps</a>
+        <p class="filename">poste_226.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_227.jpg" alt="poste 227" /></div>
+      <div class="card-body">
+        <p class="card-id">#227 E240  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.805300</p>
+        <p class="coord">-54.311970</p>
+        <a href="https://www.google.com/maps?q=-23.8053,-54.31197" target="_blank">ver no Maps</a>
+        <p class="filename">poste_227.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_228.jpg" alt="poste 228" /></div>
+      <div class="card-body">
+        <p class="card-id">#228 E241  <span class="badge ok">OK</span></p>
+        <p class="coord">-22.866389</p>
+        <p class="coord">-54.609861</p>
+        <a href="https://www.google.com/maps?q=-22.8663888889,-54.6098611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_228.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_229.jpg" alt="poste 229" /></div>
+      <div class="card-body">
+        <p class="card-id">#229 E242  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.481472</p>
+        <p class="coord">-54.186389</p>
+        <a href="https://www.google.com/maps?q=-23.4814722222,-54.1863888889" target="_blank">ver no Maps</a>
+        <p class="filename">poste_229.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_230.jpg" alt="poste 230" /></div>
+      <div class="card-body">
+        <p class="card-id">#230 E243  <span class="badge ok">OK</span></p>
+        <p class="coord">-23.052660</p>
+        <p class="coord">-54.239530</p>
+        <a href="https://www.google.com/maps?q=-23.05266,-54.23953" target="_blank">ver no Maps</a>
+        <p class="filename">poste_230.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_231.jpg" alt="poste 231" /></div>
+      <div class="card-body">
+        <p class="card-id">#231 E244  <span class="badge ok">OK</span></p>
+        <p class="coord">-24.005622</p>
+        <p class="coord">-54.312500</p>
+        <a href="https://www.google.com/maps?q=-24.005622,-54.3125" target="_blank">ver no Maps</a>
+        <p class="filename">poste_231.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_232.jpg" alt="poste 232" /></div>
+      <div class="card-body">
+        <p class="card-id">#232 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.928111</p>
+        <p class="coord">-54.282194</p>
+        <a href="https://www.google.com/maps?q=-23.9281111111,-54.2821944444" target="_blank">ver no Maps</a>
+        <p class="filename">poste_232.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_233.jpg" alt="poste 233" /></div>
+      <div class="card-body">
+        <p class="card-id">#233 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.640139</p>
+        <p class="coord">-54.813528</p>
+        <a href="https://www.google.com/maps?q=-22.6401388889,-54.8135277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_233.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_234.jpg" alt="poste 234" /></div>
+      <div class="card-body">
+        <p class="card-id">#234 <span class="badge ok">OK</span></p>
+        <p class="coord">-22.627083</p>
+        <p class="coord">-54.818917</p>
+        <a href="https://www.google.com/maps?q=-22.6270833333,-54.8189166667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_234.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_235.jpg" alt="poste 235" /></div>
+      <div class="card-body">
+        <p class="card-id">#235 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.795278</p>
+        <p class="coord">-54.287333</p>
+        <a href="https://www.google.com/maps?q=-23.7952777778,-54.2873333333" target="_blank">ver no Maps</a>
+        <p class="filename">poste_235.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_236.jpg" alt="poste 236" /></div>
+      <div class="card-body">
+        <p class="card-id">#236 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.962250</p>
+        <p class="coord">-54.321528</p>
+        <a href="https://www.google.com/maps?q=-23.96225,-54.3215277778" target="_blank">ver no Maps</a>
+        <p class="filename">poste_236.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_237.jpg" alt="poste 237" /></div>
+      <div class="card-body">
+        <p class="card-id">#237 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.668730</p>
+        <p class="coord">-54.263850</p>
+        <a href="https://www.google.com/maps?q=-23.66873,-54.26385" target="_blank">ver no Maps</a>
+        <p class="filename">poste_237.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_238.jpg" alt="poste 238" /></div>
+      <div class="card-body">
+        <p class="card-id">#238 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.478444</p>
+        <p class="coord">-54.187167</p>
+        <a href="https://www.google.com/maps?q=-23.4784444444,-54.1871666667" target="_blank">ver no Maps</a>
+        <p class="filename">poste_238.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_239.jpg" alt="poste 239" /></div>
+      <div class="card-body">
+        <p class="card-id">#239 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.682417</p>
+        <p class="coord">-54.265861</p>
+        <a href="https://www.google.com/maps?q=-23.6824166667,-54.2658611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_239.jpg</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="fotos_postes/poste_240.jpg" alt="poste 240" /></div>
+      <div class="card-body">
+        <p class="card-id">#240 <span class="badge ok">OK</span></p>
+        <p class="coord">-23.056222</p>
+        <p class="coord">-54.234861</p>
+        <a href="https://www.google.com/maps?q=-23.0562222222,-54.2348611111" target="_blank">ver no Maps</a>
+        <p class="filename">poste_240.jpg</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    const cards = Array.from(document.querySelectorAll('.card'));
+    function filter(q) {
+      const lq = q.toLowerCase();
+      cards.forEach(c => {
+        c.style.display = c.innerText.toLowerCase().includes(lq) ? '' : 'none';
+      });
+    }
+
+    let hoverTimer = null;
+    const overlay = document.getElementById('overlay');
+    const previewImg = document.getElementById('previewImg');
+
+    document.querySelectorAll('.card-img img').forEach(img => {
+      img.addEventListener('mouseenter', () => {
+        hoverTimer = setTimeout(() => {
+          previewImg.src = img.src;
+          overlay.classList.add('active');
+        }, 300);
+      });
+      img.addEventListener('mouseleave', () => {
+        clearTimeout(hoverTimer);
+        // overlay.classList.remove('active');
+      });
+    });
+
+    overlay.addEventListener('click', () => overlay.classList.remove('active'));
+    // overlay.addEventListener('click', async () => {
+    //   try {
+    //     const response = await fetch(previewImg.src);
+    //     const blob = await response.blob();
+    //     await navigator.clipboard.write([
+    //       new ClipboardItem({ 'image/png': blob })
+    //     ]);
+    //     showToast('Imagem copiada!');
+    //   } catch (e) {
+    //     console.error(e);
+    //     showToast('Erro ao copiar');
+    //   }
+    // });
+overlay.addEventListener('click', async (e) => {
+  if (e.target === overlay) {
+    overlay.classList.remove('active');
+    return;
+  }
+
+  try {
+    const response = await fetch(previewImg.src);
+    const blob = await response.blob();
+
+    // converte para png via canvas antes de copiar
+    const img = new Image();
+    img.src = URL.createObjectURL(blob);
+    await new Promise(r => img.onload = r);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+
+    canvas.toBlob(async (pngBlob) => {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': pngBlob })
+      ]);
+      showToast('✓ Imagem copiada!');
+    }, 'image/png');
+
+  } catch(err) {
+    showToast('Erro — rode via localhost');
+  }
+});
+    function showToast(msg) {
+      let toast = document.getElementById('toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.style.cssText = `
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #222; color: #fff; padding: 8px 20px;
+      border-radius: 8px; font-size: 13px; z-index: 2000;
+      transition: opacity 0.3s;
+    `;
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toast.style.opacity = '0', 2000);
+    }
+
+  </script>
+
+</body>
+
+</html>
